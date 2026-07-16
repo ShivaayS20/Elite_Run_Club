@@ -126,7 +126,7 @@
     <a class="text-white font-medium hover:text-secondary-container transition-colors" href="community.html">Community</a>
 </div>
 <div class="flex items-center gap-4">
-<button class="hidden sm:block bg-primary text-on-primary px-6 py-2.5 rounded-full font-label-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"><a href="form.html">join next run</a></button>
+<button class="hidden sm:block bg-primary text-on-primary px-6 py-2.5 rounded-full font-label-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">Join Next Run</button>
 <a href="/profile" title="My Profile" style="display:inline-block;"><div class="p-0.5 border-2 border-primary-fixed rounded-full hover:border-primary transition-colors cursor-pointer">
 <img alt="Member Profile" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0UUsWhn7YSUnE8K04U3V2ejZnlfkuOT5vxevmrD9sHSDAv0QTaNRLawnudDi1iymmaT7VW6SY8VNXhTXXRYpP04ZOL6mOqiURQnqi5SQ1Ayj-IZ435LL6BBUUn19qkbqpN5Epln5N1eBjIVvhhh6G0M7RnS-q5a_XJ8bSRtKIn69HeC4vCCRv09HihESHdWJb-1pgrWjB4z5w1ZxRNcF_l6gtaVd3AugFlu7Yr0DL_KPRVEtq1Q4EWW74uqW68bYWz-Y_GeM1PaA">
 </div></a>
@@ -488,12 +488,23 @@ window.addEventListener('scroll', () => {
 <script>
 // Wire up all "Join Next Run" and "Join Now" buttons to the next event
 async function loadNextEvent() {
+  // Wire "Become a Member" / "Get Your Member Kit" buttons — always works, no event needed
+  document.querySelectorAll('button').forEach(btn => {
+    const text = btn.textContent.trim();
+    if (text === 'Become a Member' || text === 'Get Your Member Kit') {
+      btn.addEventListener('click', () => {
+        window.location.href = '/login';
+      });
+    }
+  });
+
   try {
     const res = await fetch('/api/events/next');
-    if (!res.ok) return;
-    const event = await res.json();
+    if (!res.ok) return; // fine if there's no upcoming event — just skip the "Join" button wiring below
 
-    // Update all "Join Next Run" buttons to link to events page
+    const { data } = await res.json();
+const event = data.event;
+
     document.querySelectorAll('button').forEach(btn => {
       const text = btn.textContent.trim();
       if (text === 'Join Next Run' || text === 'Join Now') {
@@ -505,72 +516,13 @@ async function loadNextEvent() {
         }
       }
     });
-
-    // Wire "Become a Member" / "Get Your Member Kit" buttons
-    document.querySelectorAll('button').forEach(btn => {
-      const text = btn.textContent.trim();
-      if (text === 'Become a Member' || text === 'Get Your Member Kit') {
-        btn.addEventListener('click', () => showMemberModal());
-      }
-    });
   } catch (e) {
     console.error('Could not load next event:', e);
   }
 }
 
 // Simple member signup modal
-function showMemberModal() {
-  const existing = document.getElementById('erc-member-modal');
-  if (existing) { existing.style.display = 'flex'; return; }
 
-  const modal = document.createElement('div');
-  modal.id = 'erc-member-modal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative;">
-      <button onclick="document.getElementById('erc-member-modal').style.display='none'"
-        style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
-      <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;">Join Elite Run Club</h2>
-      <p style="color:#666;margin-bottom:20px;font-size:0.9rem;">Get your member kit and stay in the loop.</p>
-      <input id="erc-m-name" placeholder="Your name" style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;font-size:1rem;box-sizing:border-box;">
-      <input id="erc-m-email" type="email" placeholder="Email address" style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:16px;font-size:1rem;box-sizing:border-box;">
-      <button id="erc-m-submit" onclick="submitMembership()"
-        style="width:100%;background:#2B4A8C;color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:600;cursor:pointer;">
-        Count Me In
-      </button>
-      <p id="erc-m-msg" style="margin-top:12px;text-align:center;font-size:0.9rem;"></p>
-    </div>
-  `;
-  document.body.appendChild(modal);
-}
-
-async function submitMembership() {
-  const name = document.getElementById('erc-m-name').value.trim();
-  const email = document.getElementById('erc-m-email').value.trim();
-  const msg = document.getElementById('erc-m-msg');
-
-  if (!name || !email) { msg.textContent = 'Please fill in both fields.'; msg.style.color='red'; return; }
-
-  const btn = document.getElementById('erc-m-submit');
-  btn.textContent = 'Submitting...'; btn.disabled = true;
-
-  try {
-    const res = await fetch('/api/members', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ name, email })
-    });
-    const data = await res.json();
-    msg.textContent = data.message || data.error;
-    msg.style.color = res.ok ? '#2B4A8C' : 'red';
-    if (res.ok) btn.textContent = '✓ Done';
-    else { btn.textContent = 'Count Me In'; btn.disabled = false; }
-  } catch (e) {
-    msg.textContent = 'Something went wrong. Try again.';
-    msg.style.color = 'red';
-    btn.textContent = 'Count Me In'; btn.disabled = false;
-  }
-}
 
 loadNextEvent();
 </script>

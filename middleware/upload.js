@@ -1,10 +1,13 @@
 const multer = require("multer");
 const path = require("path");
 const crypto = require("crypto");
+const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads/avatars"));
+    const dir = path.join(__dirname, "../uploads/avatars");
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
   },
   filename: (req, file, cb) => {
     const uniqueName = crypto.randomBytes(16).toString("hex");
@@ -26,7 +29,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 3 * 1024 * 1024 }, // 3MB
+  limits: { fileSize: 3 * 1024 * 1024 },
 });
 
 module.exports = upload;

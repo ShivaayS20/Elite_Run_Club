@@ -293,7 +293,8 @@
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
 </button>
 </div>
-
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
 <script>
 // ── Filter buttons ──────────────────────────────────────────────────
 const filterBtns = document.querySelectorAll('button');
@@ -353,15 +354,23 @@ if (highlightId) {
 }
 
 // ── RSVP Modal ───────────────────────────────────────────────────────
+// ── RSVP Modal ───────────────────────────────────────────────────────
 async function showRsvpModal(eventId, eventTitle) {
+  // Must be logged in to register — send to login if not
+  const user = await checkAuth();
+  if (!user) {
+    window.location.href = '/login';
+    return;
+  }
+
   // Get next event if no ID provided
   if (!eventId) {
     try {
       const res = await fetch('/api/events/next');
       if (res.ok) {
-        const ev = await res.json();
-        eventId = ev.id;
-        eventTitle = eventTitle || ev.title;
+        const { data } = await res.json();
+        eventId = data.event.id;
+        eventTitle = eventTitle || data.event.title;
       }
     } catch(e) {}
   }
@@ -371,17 +380,16 @@ async function showRsvpModal(eventId, eventTitle) {
 
   const modal = document.createElement('div');
   modal.id = 'erc-rsvp-modal';
+  modal.dataset.eventId = eventId;
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
   modal.innerHTML = `
     <div style="background:#fff;border-radius:20px;padding:32px;width:90%;max-width:420px;position:relative;">
       <button onclick="document.getElementById('erc-rsvp-modal').style.display='none'"
         style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
       <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:4px;">Join This Run</h2>
-      <p id="erc-rsvp-event-name" style="color:#2B4A8C;font-weight:600;margin-bottom:20px;">${eventTitle || 'Upcoming Run'}</p>
-      <input id="erc-rsvp-name" placeholder="Your name" style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;font-size:1rem;box-sizing:border-box;">
-      <input id="erc-rsvp-email" type="email" placeholder="Email address" style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px;font-size:1rem;box-sizing:border-box;">
-      <input id="erc-rsvp-phone" type="tel" placeholder="Phone (optional)" style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:16px;font-size:1rem;box-sizing:border-box;">
-      <button id="erc-rsvp-submit" onclick="submitRsvp(${eventId})"
+      <p id="erc-rsvp-event-name" style="color:#2B4A8C;font-weight:600;margin-bottom:24px;">${eventTitle || 'Upcoming Run'}</p>
+      <p style="color:#666;font-size:0.9rem;margin-bottom:20px;">You're signed in as <strong>${user.name}</strong> (${user.email}). Confirm below to reserve your spot.</p>
+      <button id="erc-rsvp-submit" onclick="submitRsvp()"
         style="width:100%;background:#2B4A8C;color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:600;cursor:pointer;">
         Count Me In
       </button>
@@ -391,31 +399,23 @@ async function showRsvpModal(eventId, eventTitle) {
   document.body.appendChild(modal);
 }
 
-async function submitRsvp(eventId) {
-  const name = document.getElementById('erc-rsvp-name').value.trim();
-  const email = document.getElementById('erc-rsvp-email').value.trim();
-  const phone = document.getElementById('erc-rsvp-phone').value.trim();
+async function submitRsvp() {
+  const modal = document.getElementById('erc-rsvp-modal');
+  const eventId = modal.dataset.eventId;
   const msg = document.getElementById('erc-rsvp-msg');
   const btn = document.getElementById('erc-rsvp-submit');
 
-  if (!name || !email) { msg.textContent = 'Name and email are required.'; msg.style.color='red'; return; }
   if (!eventId) { msg.textContent = 'Could not find event. Please refresh.'; msg.style.color='red'; return; }
 
   btn.textContent = 'Submitting...'; btn.disabled = true;
 
   try {
-    const res = await fetch(`/api/events/${eventId}/rsvp`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ name, email, phone })
-    });
-    const data = await res.json();
-    msg.textContent = data.message || data.error;
-    msg.style.color = res.ok ? '#2B4A8C' : 'red';
-    if (res.ok) { btn.textContent = "✓ You're in!"; }
-    else { btn.textContent = 'Count Me In'; btn.disabled = false; }
+    await apiPost('/api/registrations', { eventId });
+    msg.textContent = "You're confirmed! Check your email.";
+    msg.style.color = '#2B4A8C';
+    btn.textContent = "✓ You're in!";
   } catch(e) {
-    msg.textContent = 'Something went wrong. Try again.';
+    msg.textContent = e.message;
     msg.style.color = 'red';
     btn.textContent = 'Count Me In'; btn.disabled = false;
   }

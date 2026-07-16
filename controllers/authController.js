@@ -91,6 +91,7 @@ const getMe = (req, res) => {
       name: req.user.name,
       email: req.user.email,
       avatar: req.user.avatar,
+      phone: req.user.phone,
       role: req.user.role,
     },
   });

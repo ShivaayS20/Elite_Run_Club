@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Event Details | Elite Run Club</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#00336e","on-primary": "#ffffff","surface": "#f7f9fb",
+          "surface-container-low": "#f2f4f6","surface-container": "#eceef0",
+          "surface-container-lowest": "#ffffff","on-surface": "#191c1e",
+          "on-surface-variant": "#434750","outline": "#747781",
+          "outline-variant": "#c3c6d1","background": "#f7f9fb",
+          "primary-fixed": "#d7e2ff"
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+
+<nav class="w-full top-0 sticky z-50 bg-surface shadow-sm">
+  <div class="flex justify-between items-center px-4 md:px-16 py-4 max-w-7xl mx-auto">
+    <a href="/" class="font-bold text-primary text-xl">Elite Run Club</a>
+    <a href="/events" class="text-on-surface-variant hover:text-primary text-sm font-medium flex items-center gap-1">
+      <span class="material-symbols-outlined text-base">arrow_back</span> Back to Events
+    </a>
+  </div>
+</nav>
+
+<main class="max-w-3xl mx-auto px-4 py-10">
+
+  <div id="loading-state" class="text-center py-24 text-on-surface-variant">Loading event…</div>
+
+  <div id="error-state" class="hidden text-center py-24">
+    <p class="text-on-surface-variant mb-4">We couldn't find this event.</p>
+    <a href="/events" class="text-primary font-semibold hover:underline">Browse all events →</a>
+  </div>
+
+  <div id="event-content" class="hidden">
+    <span id="event-difficulty" class="inline-block bg-primary-fixed text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-4"></span>
+    <h1 id="event-title" class="text-3xl font-bold text-on-surface mb-4"></h1>
+
+    <div class="flex flex-wrap gap-6 mb-6 text-sm text-on-surface-variant">
+      <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary">calendar_month</span><span id="event-date"></span></div>
+      <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary">schedule</span><span id="event-time"></span></div>
+      <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary">location_on</span><span id="event-location"></span></div>
+      <div id="event-distance-wrap" class="hidden items-center gap-2"><span class="material-symbols-outlined text-primary">directions_run</span><span id="event-distance"></span></div>
+    </div>
+
+    <p id="event-description" class="text-on-surface-variant leading-relaxed mb-8"></p>
+
+    <div class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-6 flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <p id="event-spots" class="font-semibold text-on-surface"></p>
+        <p class="text-xs text-on-surface-variant">Spots are first-come, first-served.</p>
+      </div>
+      <button id="register-btn" onclick="handleRegister()" class="bg-primary text-on-primary px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all">
+        Register for this run
+      </button>
+    </div>
+    <p id="register-msg" class="mt-4 text-center text-sm"></p>
+  </div>
+
+</main>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+let currentEvent = null;
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const eventId = params.get('id');
+
+  if (!eventId) {
+    showError();
+    return;
+  }
+
+  try {
+    const { event } = await apiGet(`/api/events/${eventId}`);
+    currentEvent = event;
+    renderEvent(event);
+  } catch (e) {
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('loading-state').classList.add('hidden');
+  document.getElementById('error-state').classList.remove('hidden');
+}
+
+function renderEvent(event) {
+  document.getElementById('loading-state').classList.add('hidden');
+  document.getElementById('event-content').classList.remove('hidden');
+
+  document.getElementById('event-difficulty').textContent = event.difficulty;
+  document.getElementById('event-title').textContent = event.title;
+  document.getElementById('event-description').textContent = event.description;
+
+  const dateObj = new Date(event.date);
+  document.getElementById('event-date').textContent = dateObj.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('event-time').textContent = event.time;
+  document.getElementById('event-location').textContent = event.location;
+
+  if (event.distanceKm) {
+    document.getElementById('event-distance-wrap').classList.remove('hidden');
+    document.getElementById('event-distance-wrap').classList.add('flex');
+    document.getElementById('event-distance').textContent = `${event.distanceKm} km`;
+  }
+
+  const spotsEl = document.getElementById('event-spots');
+  if (event.maxParticipants) {
+    const remaining = event.maxParticipants - (event.registrationCount || 0);
+    spotsEl.textContent = remaining > 0 ? `${remaining} spots remaining` : 'This run is full';
+    if (remaining <= 0) document.getElementById('register-btn').disabled = true;
+  } else {
+    spotsEl.textContent = `${event.registrationCount || 0} runners registered`;
+  }
+}
+
+async function handleRegister() {
+  const user = await checkAuth();
+  if (!user) {
+    window.location.href = '/login';
+    return;
+  }
+
+  const btn = document.getElementById('register-btn');
+  const msg = document.getElementById('register-msg');
+  btn.disabled = true;
+  btn.textContent = 'Registering…';
+
+  try {
+    await apiPost('/api/registrations', { eventId: currentEvent.id });
+    btn.textContent = "✓ You're in!";
+    msg.style.color = '#00336e';
+    msg.textContent = "You're confirmed! Check your email.";
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Register for this run';
+    msg.style.color = 'red';
+    msg.textContent = e.message;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

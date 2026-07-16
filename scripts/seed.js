@@ -9,7 +9,7 @@ const run = async () => {
   const testEvent = await Event.create({
     title: "Saturday Morning 5K",
     description: "A friendly 5K run around the city park, all paces welcome.",
-    date: new Date("2026-07-12"),
+    date: new Date("2026-08-15"),
     time: "06:00 AM",
     location: "City Park Main Gate",
     distanceKm: 5,
