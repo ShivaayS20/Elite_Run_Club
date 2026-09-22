@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
       default: "member",
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true } }
 );
 
 module.exports = mongoose.model("User", userSchema);

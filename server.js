@@ -83,6 +83,14 @@ app.use("/api", (req, res) => {
 // Handle errors gracefully globally
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server executing successfully. Live running context listening over port: ${PORT}`);
-});
+// Vercel's serverless runtime imports this file for its exports and calls the
+// app directly — it doesn't need (or want) us binding to a port ourselves.
+// Locally (npm run dev / npm start), process.env.VERCEL isn't set, so this
+// still starts a normal server exactly as before.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server executing successfully. Live running context listening over port: ${PORT}`);
+  });
+}
+
+module.exports = app;

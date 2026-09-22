@@ -21,7 +21,7 @@ const gallerySchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true } }
 );
 
 gallerySchema.index({ event: 1 });

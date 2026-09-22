@@ -76,7 +76,7 @@ const getEventById = async (req, res) => {
     });
 
     return success(res, 200, "", {
-      event: { ...event.toObject(), registrationCount },
+      event: { ...event.toObject({ virtuals: true }), registrationCount },
     });
   } catch (err) {
     if (err.name === "CastError") {

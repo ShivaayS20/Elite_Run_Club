@@ -26,7 +26,7 @@ const contactSchema = new mongoose.Schema(
       default: "new",
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true } }
 );
 
 contactSchema.index({ status: 1 });

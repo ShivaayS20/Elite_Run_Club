@@ -22,7 +22,7 @@ const registrationSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { timestamps: true }
+ { timestamps: true, toJSON: { virtuals: true } }
 );
 
 registrationSchema.index({ user: 1, event: 1 }, { unique: true });

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gallery | Elite Run Club</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#00336e","on-primary": "#ffffff","surface": "#f7f9fb",
+          "surface-container-low": "#f2f4f6","surface-container-lowest": "#ffffff",
+          "on-surface": "#191c1e","on-surface-variant": "#434750",
+          "outline-variant": "#c3c6d1","background": "#f7f9fb"
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col">
+
+<nav class="w-full top-0 sticky z-50 bg-surface shadow-sm">
+  <div class="flex justify-between items-center px-4 md:px-16 py-4 max-w-7xl mx-auto">
+    <a href="/" class="font-bold text-primary text-xl">Elite Run Club</a>
+    <div class="hidden lg:flex items-center gap-8 text-sm font-medium text-on-surface-variant">
+      <a href="/" class="hover:text-primary">Home</a>
+      <a href="/events" class="hover:text-primary">Runs &amp; Events</a>
+      <a href="/gallery" class="text-primary">Gallery</a>
+      <a href="/community" class="hover:text-primary">Community</a>
+      <a href="/contact" class="hover:text-primary">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<main class="flex-1 max-w-6xl mx-auto px-4 py-16 w-full">
+  <h1 class="text-3xl font-bold text-on-surface mb-2 text-center">Gallery</h1>
+  <p class="text-on-surface-variant text-center mb-10">Moments from our runs, races, and community.</p>
+
+  <div id="loading-state" class="text-center py-16 text-on-surface-variant">Loading photos…</div>
+
+  <div id="empty-state" class="hidden text-center py-16">
+    <span class="material-symbols-outlined text-5xl text-outline-variant mb-3 block">photo_library</span>
+    <p class="text-on-surface-variant">No photos yet — check back after our next run!</p>
+  </div>
+
+  <div id="gallery-grid" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+
+  <div id="pagination" class="hidden flex justify-center gap-3 mt-10">
+    <button id="prev-btn" onclick="changePage(-1)" class="px-4 py-2 rounded-full border border-outline-variant text-sm font-semibold text-on-surface-variant hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+    <span id="page-info" class="px-4 py-2 text-sm text-on-surface-variant"></span>
+    <button id="next-btn" onclick="changePage(1)" class="px-4 py-2 rounded-full border border-outline-variant text-sm font-semibold text-on-surface-variant hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+  </div>
+</main>
+
+<!-- Lightbox -->
+<div id="lightbox" class="hidden fixed inset-0 bg-black/80 z-[999] items-center justify-center px-4" onclick="closeLightbox()">
+  <img id="lightbox-img" class="max-h-[85vh] max-w-full rounded-xl" src="" alt="">
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+let currentPage = 1;
+let totalPages = 1;
+
+async function loadGallery(page = 1) {
+  const loading = document.getElementById('loading-state');
+  const empty = document.getElementById('empty-state');
+  const grid = document.getElementById('gallery-grid');
+  const pagination = document.getElementById('pagination');
+
+  loading.classList.remove('hidden');
+  empty.classList.add('hidden');
+  grid.classList.add('hidden');
+  pagination.classList.add('hidden');
+
+  try {
+    const { images, pages } = await apiGet(`/api/gallery?page=${page}&limit=12`);
+    loading.classList.add('hidden');
+    currentPage = page;
+    totalPages = pages;
+
+    if (!images.length) {
+      empty.classList.remove('hidden');
+      return;
+    }
+
+    grid.innerHTML = images.map(img => `
+      <button onclick="openLightbox('${img.imageUrl}')" class="aspect-square rounded-xl overflow-hidden bg-surface-container-low group relative">
+        <img src="${img.imageUrl}" alt="${img.caption || 'Club photo'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      </button>
+    `).join('');
+    grid.classList.remove('hidden');
+
+    if (pages > 1) {
+      pagination.classList.remove('hidden');
+      document.getElementById('page-info').textContent = `Page ${page} of ${pages}`;
+      document.getElementById('prev-btn').disabled = page <= 1;
+      document.getElementById('next-btn').disabled = page >= pages;
+    }
+  } catch (e) {
+    loading.classList.add('hidden');
+    empty.classList.remove('hidden');
+    console.error('Failed to load gallery:', e.message);
+  }
+}
+
+function changePage(direction) {
+  const newPage = currentPage + direction;
+  if (newPage < 1 || newPage > totalPages) return;
+  loadGallery(newPage);
+}
+
+function openLightbox(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.remove('hidden');
+  document.getElementById('lightbox').classList.add('flex');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.add('hidden');
+  document.getElementById('lightbox').classList.remove('flex');
+}
+
+loadGallery();
+</script>
+</body>
+</html>

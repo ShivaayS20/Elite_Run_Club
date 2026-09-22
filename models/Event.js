@@ -48,7 +48,7 @@ const eventSchema = new mongoose.Schema(
       default: "published",
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true } }
 );
 
 eventSchema.index({ date: 1, status: 1 });

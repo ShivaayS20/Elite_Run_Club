@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Dashboard | Elite Run Club</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#00336e","on-primary": "#ffffff","surface": "#f7f9fb",
+          "surface-container-low": "#f2f4f6","surface-container-lowest": "#ffffff",
+          "surface-container": "#eceef0","on-surface": "#191c1e",
+          "on-surface-variant": "#434750","outline-variant": "#c3c6d1",
+          "background": "#f7f9fb","primary-fixed": "#d7e2ff",
+          "error": "#ba1a1a","error-container": "#ffdad6"
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .tab-active { border-bottom: 2px solid #00336e; color: #00336e; font-weight: 700; }
+  .tab-inactive { border-bottom: 2px solid transparent; color: #434750; }
+  table { border-collapse: collapse; }
+  th, td { text-align: left; padding: 12px 16px; font-size: 14px; }
+  thead tr { border-bottom: 1px solid #c3c6d1; }
+  tbody tr { border-bottom: 1px solid #eceef0; }
+</style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+
+<nav class="w-full top-0 sticky z-50 bg-surface shadow-sm">
+  <div class="flex justify-between items-center px-4 md:px-16 py-4 max-w-7xl mx-auto">
+    <a href="/" class="font-bold text-primary text-xl">Elite Run Club <span class="text-sm font-normal text-on-surface-variant">/ Admin</span></a>
+    <button onclick="logout()" class="text-on-surface-variant hover:text-primary text-sm font-medium border border-outline-variant rounded-full px-4 py-2">Log out</button>
+  </div>
+</nav>
+
+<div id="access-denied" class="hidden max-w-md mx-auto text-center py-24 px-4">
+  <span class="material-symbols-outlined text-5xl text-error mb-3 block">block</span>
+  <h1 class="text-xl font-bold mb-2">Access Denied</h1>
+  <p class="text-on-surface-variant">You need admin access to view this page.</p>
+  <a href="/" class="text-primary font-semibold hover:underline mt-4 inline-block">Back to Home</a>
+</div>
+
+<main id="dashboard" class="hidden max-w-6xl mx-auto px-4 py-10">
+  <h1 class="text-2xl font-bold mb-8">Admin Dashboard</h1>
+
+  <div class="flex border-b border-outline-variant mb-8">
+    <button onclick="showTab('events')" id="tab-events" class="tab-active py-3 px-6 text-sm transition-colors">Events</button>
+    <button onclick="showTab('registrations')" id="tab-registrations" class="tab-inactive py-3 px-6 text-sm transition-colors">Registrations</button>
+    <button onclick="showTab('messages')" id="tab-messages" class="tab-inactive py-3 px-6 text-sm transition-colors">Messages</button>
+  </div>
+
+  <!-- EVENTS TAB -->
+  <section id="section-events">
+    <div class="flex justify-end mb-4">
+      <button onclick="openEventModal()" class="bg-primary text-on-primary px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2">
+        <span class="material-symbols-outlined text-base">add</span> New Event
+      </button>
+    </div>
+    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 overflow-x-auto">
+      <table class="w-full">
+        <thead><tr>
+          <th>Title</th><th>Date</th><th>Location</th><th>Status</th><th>Registered</th><th></th>
+        </tr></thead>
+        <tbody id="events-tbody"></tbody>
+      </table>
+      <p id="events-empty" class="hidden text-center text-on-surface-variant py-10">No events yet.</p>
+    </div>
+  </section>
+
+  <!-- REGISTRATIONS TAB -->
+  <section id="section-registrations" class="hidden">
+    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 overflow-x-auto">
+      <table class="w-full">
+        <thead><tr>
+          <th>Runner</th><th>Email</th><th>Event</th><th>Registered On</th><th>Status</th>
+        </tr></thead>
+        <tbody id="registrations-tbody"></tbody>
+      </table>
+      <p id="registrations-empty" class="hidden text-center text-on-surface-variant py-10">No registrations yet.</p>
+    </div>
+  </section>
+
+  <!-- MESSAGES TAB -->
+  <section id="section-messages" class="hidden">
+    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 overflow-x-auto">
+      <table class="w-full">
+        <thead><tr>
+          <th>Name</th><th>Email</th><th>Message</th><th>Status</th><th>Received</th><th></th>
+        </tr></thead>
+        <tbody id="messages-tbody"></tbody>
+      </table>
+      <p id="messages-empty" class="hidden text-center text-on-surface-variant py-10">No messages yet.</p>
+    </div>
+  </section>
+</main>
+
+<!-- Event Create/Edit Modal -->
+<div id="event-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[999] px-4 overflow-y-auto py-10">
+  <div class="bg-white rounded-2xl p-8 w-full max-w-lg relative">
+    <button onclick="closeEventModal()" class="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <h2 id="event-modal-title" class="text-xl font-bold mb-6">New Event</h2>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Title</label>
+        <input id="ev-title" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Description</label>
+        <textarea id="ev-description" rows="3" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface resize-none"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Date</label>
+          <input id="ev-date" type="date" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Time</label>
+          <input id="ev-time" placeholder="06:00 AM" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Location</label>
+        <input id="ev-location" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Distance (km)</label>
+          <input id="ev-distance" type="number" step="0.1" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Difficulty</label>
+          <select id="ev-difficulty" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
+            <option>Easy</option><option>Moderate</option><option>Hard</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Max Spots</label>
+          <input id="ev-max" type="number" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-on-surface-variant uppercase mb-1">Status</label>
+        <select id="ev-status" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+    </div>
+
+    <button onclick="saveEvent()" class="w-full bg-primary text-on-primary rounded-full py-3 font-semibold mt-6">Save Event</button>
+    <p id="event-modal-msg" class="mt-3 text-sm text-center"></p>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+let editingEventId = null;
+let allEvents = [];
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const user = await checkAuth();
+  if (!user) { window.location.href = '/login'; return; }
+  if (user.role !== 'admin') {
+    document.getElementById('access-denied').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('dashboard').classList.remove('hidden');
+  loadEvents();
+});
+
+function showTab(tab) {
+  ['events', 'registrations', 'messages'].forEach(t => {
+    document.getElementById(`section-${t}`).classList.toggle('hidden', t !== tab);
+    document.getElementById(`tab-${t}`).className = t === tab
+      ? 'tab-active py-3 px-6 text-sm transition-colors'
+      : 'tab-inactive py-3 px-6 text-sm transition-colors';
+  });
+  if (tab === 'registrations') loadRegistrations();
+  if (tab === 'messages') loadMessages();
+}
+
+// ── EVENTS ───────────────────────────────────────────────────────────
+async function loadEvents() {
+  try {
+    const { events } = await apiGet('/api/admin/events?limit=100');
+allEvents = events; // keep a copy so buttons can look events up safely by ID
+const tbody = document.getElementById('events-tbody');
+    const empty = document.getElementById('events-empty');
+
+    if (!events.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+
+    tbody.innerHTML = events.map(ev => `
+      <tr>
+        <td class="font-semibold">${ev.title}</td>
+        <td>${new Date(ev.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+        <td>${ev.location}</td>
+        <td><span class="text-xs px-2 py-0.5 rounded-full ${statusColor(ev.status)}">${ev.status}</span></td>
+        <td>${ev.registrationCount ?? 0}${ev.maxParticipants ? ' / ' + ev.maxParticipants : ''}</td>
+        <td class="text-right whitespace-nowrap">
+          <button onclick="editEvent('${ev.id}')" class="text-primary text-xs font-semibold mr-3">Edit</button>
+          <button onclick="deleteEvent('${ev.id}')" class="text-error text-xs font-semibold">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    console.error('Failed to load events:', e.message);
+  }
+}
+
+function statusColor(status) {
+  if (status === 'published') return 'bg-primary-fixed text-primary';
+  if (status === 'draft') return 'bg-surface-container text-on-surface-variant';
+  return 'bg-error-container text-error';
+}
+
+function editEvent(id) {
+  const event = allEvents.find(e => e.id === id);
+  if (event) openEventModal(event);
+}
+
+function openEventModal(event = null) {
+  editingEventId = event ? event.id : null;
+  document.getElementById('event-modal-title').textContent = event ? 'Edit Event' : 'New Event';
+  document.getElementById('ev-title').value = event?.title || '';
+  document.getElementById('ev-description').value = event?.description || '';
+  document.getElementById('ev-date').value = event ? new Date(event.date).toISOString().split('T')[0] : '';
+  document.getElementById('ev-time').value = event?.time || '';
+  document.getElementById('ev-location').value = event?.location || '';
+  document.getElementById('ev-distance').value = event?.distanceKm || '';
+  document.getElementById('ev-difficulty').value = event?.difficulty || 'Easy';
+  document.getElementById('ev-max').value = event?.maxParticipants || '';
+  document.getElementById('ev-status').value = event?.status || 'published';
+  document.getElementById('event-modal-msg').textContent = '';
+  document.getElementById('event-modal').classList.remove('hidden');
+}
+function closeEventModal() { document.getElementById('event-modal').classList.add('hidden'); }
+
+async function saveEvent() {
+  const msg = document.getElementById('event-modal-msg');
+  const payload = {
+    title: document.getElementById('ev-title').value.trim(),
+    description: document.getElementById('ev-description').value.trim(),
+    date: document.getElementById('ev-date').value,
+    time: document.getElementById('ev-time').value.trim(),
+    location: document.getElementById('ev-location').value.trim(),
+    distanceKm: document.getElementById('ev-distance').value ? Number(document.getElementById('ev-distance').value) : null,
+    difficulty: document.getElementById('ev-difficulty').value,
+    maxParticipants: document.getElementById('ev-max').value ? Number(document.getElementById('ev-max').value) : null,
+    status: document.getElementById('ev-status').value,
+  };
+
+  try {
+    if (editingEventId) {
+      await apiPatch(`/api/admin/events/${editingEventId}`, payload);
+    } else {
+      await apiPost('/api/admin/events', payload);
+    }
+    closeEventModal();
+    loadEvents();
+  } catch (e) {
+    msg.style.color = 'red';
+    msg.textContent = e.message;
+  }
+}
+
+async function deleteEvent(id) {
+  if (!confirm('Delete this event? This cannot be undone.')) return;
+  try {
+    await apiDelete(`/api/admin/events/${id}`);
+    loadEvents();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+// ── REGISTRATIONS ────────────────────────────────────────────────────
+async function loadRegistrations() {
+  try {
+    const { registrations } = await apiGet('/api/admin/registrations');
+    const tbody = document.getElementById('registrations-tbody');
+    const empty = document.getElementById('registrations-empty');
+
+    if (!registrations.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+
+    tbody.innerHTML = registrations.map(r => `
+      <tr>
+        <td class="font-semibold">${r.user?.name || '—'}</td>
+        <td>${r.user?.email || '—'}</td>
+        <td>${r.event?.title || '—'}</td>
+        <td>${new Date(r.registeredAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+        <td><span class="text-xs px-2 py-0.5 rounded-full bg-primary-fixed text-primary">${r.status}</span></td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    console.error('Failed to load registrations:', e.message);
+  }
+}
+
+// ── MESSAGES ─────────────────────────────────────────────────────────
+async function loadMessages() {
+  try {
+    const { messages } = await apiGet('/api/admin/contact');
+    const tbody = document.getElementById('messages-tbody');
+    const empty = document.getElementById('messages-empty');
+
+    if (!messages.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+
+    tbody.innerHTML = messages.map(m => `
+      <tr>
+        <td class="font-semibold">${m.name}</td>
+        <td>${m.email}</td>
+        <td class="max-w-xs truncate">${m.message}</td>
+        <td><span class="text-xs px-2 py-0.5 rounded-full ${statusColor(m.status === 'new' ? 'draft' : 'published')}">${m.status}</span></td>
+        <td>${new Date(m.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</td>
+        <td class="whitespace-nowrap">
+          ${m.status !== 'read' ? `<button onclick="updateMessageStatus('${m.id}','read')" class="text-primary text-xs font-semibold mr-3">Mark Read</button>` : ''}
+          ${m.status !== 'responded' ? `<button onclick="updateMessageStatus('${m.id}','responded')" class="text-primary text-xs font-semibold">Mark Responded</button>` : ''}
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    console.error('Failed to load messages:', e.message);
+  }
+}
+
+async function updateMessageStatus(id, status) {
+  try {
+    await apiPatch(`/api/admin/contact/${id}`, { status });
+    loadMessages();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+</script>
+</body>
+</html>

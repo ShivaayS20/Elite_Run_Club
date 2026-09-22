@@ -14,8 +14,24 @@ const getAllEvents = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(Number(limit));
 
+    // Attach a live registration count to each event in one query (avoids N+1)
+    const eventIds = events.map((e) => e._id);
+    const counts = await Registration.aggregate([
+      { $match: { event: { $in: eventIds }, status: "confirmed" } },
+      { $group: { _id: "$event", count: { $sum: 1 } } },
+    ]);
+    const countMap = {};
+    counts.forEach((c) => {
+      countMap[c._id.toString()] = c.count;
+    });
+
+    const eventsWithCounts = events.map((e) => ({
+      ...e.toObject({ virtuals: true }),
+      registrationCount: countMap[e._id.toString()] || 0,
+    }));
+
     return success(res, 200, "", {
-      events,
+      events: eventsWithCounts,
       total,
       page: Number(page),
       pages: Math.ceil(total / limit),

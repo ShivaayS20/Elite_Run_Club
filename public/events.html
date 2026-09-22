@@ -108,8 +108,268 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 40px -15px rgba(36, 74, 134, 0.12);
         }
+
+        /* ── Event Card Expand Animation ────────────────────────────── */
+        .event-card {
+            position: relative;
+            overflow: hidden;
+            background: #ffffff;
+            border: 1px solid #e0e3e5;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            height: 180px;
+            transition: height 0.5s ease-out, padding 0.5s ease-out, box-shadow 0.5s ease-out;
+            will-change: height;
+        }
+
+        .event-card:hover {
+            height: 50vh;
+            padding: 3rem;
+            box-shadow: 0 20px 40px -15px rgba(36, 74, 134, 0.12);
+        }
+
+        /* Background image fade-in */
+        .event-card-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            z-index: 0;
+            transition: opacity 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-bg {
+            opacity: 1;
+        }
+
+        /* Gradient overlay */
+        .event-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, black, rgba(0,0,0,0.85), rgba(0,0,0,0.25));
+            opacity: 0;
+            z-index: 10;
+            transition: opacity 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-overlay {
+            opacity: 1;
+        }
+
+        /* Content container */
+        .event-card-content {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .event-card-content {
+                flex-direction: row;
+                align-items: center;
+                gap: 2rem;
+            }
+        }
+
+        /* Date badge */
+        .event-card-date {
+            flex-shrink: 0;
+            text-align: center;
+            background: rgba(215, 226, 255, 0.3);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            width: fit-content;
+            border: 1px solid transparent;
+            transition: background 0.7s ease-out, border-color 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-date {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .event-card-date-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #00336e;
+            margin-bottom: 0.125rem;
+            transition: color 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-date-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .event-card-date-num {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #00336e;
+            transition: color 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-date-num {
+            color: #ffffff;
+        }
+
+        .event-card-date-sub {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #434750;
+            transition: color 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-date-sub {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Status / meta pill row above title */
+        .event-card-pills {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-card-pill {
+            background: #e6e8ea;
+            color: #191c1e;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: background 0.7s ease-out, color 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-pill {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .event-card-pill-accent {
+            background: #75a5ff;
+            color: #00397c;
+        }
+
+        .event-card:hover .event-card-pill-accent {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .event-card-pill-note {
+            font-size: 0.75rem;
+            color: #434750;
+            font-weight: 500;
+            transition: color 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-pill-note {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Text block */
+        .event-card-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .event-card-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #191c1e;
+            margin-bottom: 0.25rem;
+            transition: color 0.7s ease-out, font-size 0.7s ease-out;
+        }
+
+        @media (min-width: 768px) {
+            .event-card-title { font-size: 1.25rem; }
+            .event-card:hover .event-card-title { font-size: 1.5rem; }
+        }
+
+        .event-card:hover .event-card-title {
+            color: #ffffff;
+        }
+
+        .event-card-desc {
+            color: #434750;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            max-width: 56rem;
+            transition: color 0.7s ease-out;
+
+            /* Clamp collapsed text so it never overflows the 180px card */
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .event-card-desc { font-size: 1rem; }
+        }
+
+        .event-card:hover .event-card-desc {
+            color: rgba(255, 255, 255, 0.95);
+            -webkit-line-clamp: unset;
+            line-clamp: unset;
+            overflow: visible;
+        }
+
+        /* Meta row (location, prize, sponsors) */
+        .event-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            color: #434750;
+            font-weight: 500;
+            transition: color 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-meta {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .event-card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .event-card-meta-item .material-symbols-outlined {
+            color: #00336e;
+            font-size: 0.875rem;
+            transition: color 0.7s ease-out;
+        }
+
+        .event-card:hover .event-card-meta-item .material-symbols-outlined {
+            color: #ffffff;
+        }
+
+        /* Container spacing between cards */
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 51, 110, 0.35); }
+            50% { box-shadow: 0 0 0 10px rgba(0, 51, 110, 0); }
+        }
     </style>
-</head>
 <body class="bg-background text-on-background min-h-screen flex flex-col">
 <!-- TopNavBar -->
 <nav class="w-full top-0 sticky z-50 bg-surface shadow-sm">
@@ -122,6 +382,7 @@
 
 </div>
 <div class="flex items-center gap-4">
+<a href="/events" class="hidden sm:block bg-primary text-on-primary px-6 py-2.5 rounded-full font-label-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">Join Next Run</a>
 <a href="profile.html">
   <img alt="Member Profile" class="w-10 h-10 rounded-full object-cover border-2 border-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlGLpV13SGv8LrGKsH2CPl4M0wuDUzPWR4qu7sRpFCOGDabHsO9x45XOZ5BN-lGMpN8q12L3Czz1rPOBhKrOmAyfroKi7KeinvJnopUPmMuxXLwn5LoFJUOWNHUFy1sWBchSh8dBonWpKUi9TC71IBmZjHwqPsGeS1ylNKOq7BeOFqU1TROihZsTlRl3dht0-JEkGOt0DeMrLYBuj8B_c-_egnwRK2ZHacbScm8A0Cb9aq5rjQUNUNtP_tXeKZXgGiTi_uHSlFapo"/>
 </a>
@@ -158,101 +419,127 @@
   </div>
 </section>
 
+<!-- Upcoming Runs -->
+<section class="mb-16">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <h2 class="font-headline-lg text-2xl text-on-surface font-bold">Upcoming Runs</h2>
+    <div id="run-filters" class="flex gap-2">
+      <button data-filter="all" class="run-filter-btn bg-primary text-on-primary text-xs font-semibold px-4 py-2 rounded-full transition-colors">All Days</button>
+      <button data-filter="weekend" class="run-filter-btn bg-surface text-on-surface border border-outline-variant text-xs font-semibold px-4 py-2 rounded-full transition-colors">Weekend</button>
+      <button data-filter="weekday" class="run-filter-btn bg-surface text-on-surface border border-outline-variant text-xs font-semibold px-4 py-2 rounded-full transition-colors">Weekdays</button>
+    </div>
+  </div>
+
+  <div id="upcoming-runs-list" class="events-list">
+    <p class="text-center text-sm text-on-surface-variant py-10">Loading upcoming runs…</p>
+  </div>
+  <p id="upcoming-runs-empty" class="hidden text-center text-on-surface-variant py-10 bg-surface-container-lowest rounded-2xl border border-outline-variant/40">
+    No other upcoming runs right now — check back soon!
+  </p>
+</section>
 <!-- Past Runs -->
 <section>
   <div class="flex items-center gap-3 mb-6">
     <h2 class="font-headline-lg text-2xl text-on-surface font-bold">Past Runs</h2>
   </div>
-  <div class="space-y-4">
+  <div class="events-list">
 
     <!-- Season 2 Sessions -->
-    <div class="bg-surface-container-lowest rounded-2xl border border-surface-variant p-6 hover:border-primary transition-colors group">
-      <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-        <div class="flex-shrink-0 text-center bg-primary-fixed/30 rounded-xl px-5 py-3 w-fit">
-          <p class="text-xs font-bold uppercase tracking-widest text-primary mb-0.5">Jul 2025</p>
-          <p class="text-2xl font-black text-primary">S2</p>
-          <p class="text-xs font-semibold text-on-surface-variant">Season 2</p>
+    <div class="event-card">
+      <img class="event-card-bg" src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=1200&q=80" alt="Season 2 Background" />
+      <div class="event-card-overlay"></div>
+      <div class="event-card-content">
+        <div class="event-card-date">
+          <p class="event-card-date-label">Jul 2025</p>
+          <p class="event-card-date-num">S2</p>
+          <p class="event-card-date-sub">Season 2</p>
         </div>
-        <div class="flex-1">
-          <div class="flex flex-wrap items-center gap-2 mb-2">
-            <span class="bg-surface-container-high text-on-surface text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Completed</span>
-            <span class="text-xs text-on-surface-variant font-medium">Weekly Club Sessions</span>
+        <div class="event-card-body">
+          <div class="event-card-pills">
+            <span class="event-card-pill">Completed</span>
+            <span class="event-card-pill-note">Weekly Club Sessions</span>
           </div>
-          <h3 class="font-title-md text-on-surface text-lg font-bold mb-1">Club Season 2</h3>
-          <p class="text-on-surface-variant text-sm leading-relaxed">Kicked off 13 July 2025 at Janeshwar Mishra Park (Gate 7). The second session moved to YOLO Sports Arena, followed by an exclusive basketball session — Elite's growing vision of a wider youth sports culture beyond running.</p>
-          <div class="flex flex-wrap gap-4 mt-3 text-xs text-on-surface-variant font-medium">
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">location_on</span>Janeshwar Mishra Park · YOLO Sports Arena</span>
+          <h3 class="event-card-title">Club Season 2</h3>
+          <p class="event-card-desc">Kicked off 13 July 2025 at Janeshwar Mishra Park (Gate 7). The second session moved to YOLO Sports Arena, followed by an exclusive basketball session — Elite's growing vision of a wider youth sports culture beyond running.</p>
+          <div class="event-card-meta">
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">location_on</span>Janeshwar Mishra Park · YOLO Sports Arena</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Second Edition -->
-    <div class="bg-surface-container-lowest rounded-2xl border border-surface-variant p-6 hover:border-primary transition-colors group">
-      <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-        <div class="flex-shrink-0 text-center bg-primary-fixed/30 rounded-xl px-5 py-3 w-fit">
-          <p class="text-xs font-bold uppercase tracking-widest text-primary mb-0.5">Jun 2025</p>
-          <p class="text-2xl font-black text-primary">22</p>
-          <p class="text-xs font-semibold text-on-surface-variant">Sunday</p>
+    <div class="event-card">
+      <img class="event-card-bg" src="https://images.unsplash.com/photo-1502224562085-639556652f33?auto=format&fit=crop&w=1200&q=80" alt="Second Edition Background" />
+      <div class="event-card-overlay"></div>
+      <div class="event-card-content">
+        <div class="event-card-date">
+          <p class="event-card-date-label">Jun 2025</p>
+          <p class="event-card-date-num">22</p>
+          <p class="event-card-date-sub">Sunday</p>
         </div>
-        <div class="flex-1">
-          <div class="flex flex-wrap items-center gap-2 mb-2">
-            <span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">5K Run</span>
-            <span class="text-xs text-on-surface-variant font-medium">~250 runners</span>
+        <div class="event-card-body">
+          <div class="event-card-pills">
+            <span class="event-card-pill event-card-pill-accent">5K Run</span>
+            <span class="event-card-pill-note">~250 runners</span>
           </div>
-          <h3 class="font-title-md text-on-surface text-lg font-bold mb-1">Second Edition — Elite 5K Run '25</h3>
-          <p class="text-on-surface-variant text-sm leading-relaxed">Held at Janeshwar Mishra Park, Gomti Nagar. Built around the message "Don't scroll your life away. Run it instead." Nearly 250 runners from across the city. Cash prizes for top 3, finisher medals, T-shirts, and certificates. Exclusive goodies for the Top 15 runners. Top 5 women finishers recognised in partnership with Mouth Wide Shut bakery.</p>
-          <div class="flex flex-wrap gap-4 mt-3 text-xs text-on-surface-variant font-medium">
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">location_on</span>Janeshwar Mishra Park, Gomti Nagar</span>
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">emoji_events</span>₹5000 · ₹3000 · ₹1000</span>
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">handshake</span>Lucknow Falcons · Decathlon · Knock Sense · CM Yuva Yojna</span>
+          <h3 class="event-card-title">Second Edition — Elite 5K Run '25</h3>
+          <p class="event-card-desc">Held at Janeshwar Mishra Park, Gomti Nagar. Built around the message "Don't scroll your life away. Run it instead." Nearly 250 runners from across the city. Cash prizes for top 3, finisher medals, T-shirts, and certificates. Exclusive goodies for the Top 15 runners. Top 5 women finishers recognised in partnership with Mouth Wide Shut bakery.</p>
+          <div class="event-card-meta">
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">location_on</span>Janeshwar Mishra Park, Gomti Nagar</span>
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">emoji_events</span>₹5000 · ₹3000 · ₹1000</span>
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">handshake</span>Lucknow Falcons · Decathlon · Knock Sense · CM Yuva Yojna</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Season 1 -->
-    <div class="bg-surface-container-lowest rounded-2xl border border-surface-variant p-6 hover:border-primary transition-colors group">
-      <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-        <div class="flex-shrink-0 text-center bg-primary-fixed/30 rounded-xl px-5 py-3 w-fit">
-          <p class="text-xs font-bold uppercase tracking-widest text-primary mb-0.5">Sep 2024</p>
-          <p class="text-2xl font-black text-primary">S1</p>
-          <p class="text-xs font-semibold text-on-surface-variant">Season 1</p>
+    <div class="event-card">
+      <img class="event-card-bg" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1200&q=80" alt="Club Season 1 Background" />
+      <div class="event-card-overlay"></div>
+      <div class="event-card-content">
+        <div class="event-card-date">
+          <p class="event-card-date-label">Sep 2024</p>
+          <p class="event-card-date-num">S1</p>
+          <p class="event-card-date-sub">Season 1</p>
         </div>
-        <div class="flex-1">
-          <div class="flex flex-wrap items-center gap-2 mb-2">
-            <span class="bg-surface-container-high text-on-surface text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Completed</span>
-            <span class="text-xs text-on-surface-variant font-medium">15 sessions · 6 → 103 runners</span>
+        <div class="event-card-body">
+          <div class="event-card-pills">
+            <span class="event-card-pill">Completed</span>
+            <span class="event-card-pill-note">15 sessions · 6 → 103 runners</span>
           </div>
-          <h3 class="font-title-md text-on-surface text-lg font-bold mb-1">Club Season 1</h3>
-          <p class="text-on-surface-variant text-sm leading-relaxed">First official club session held at Botanical Garden, Lucknow on 22 September 2024 — just 6 runners showed up. Over 15 weekly sessions through the year, the community grew steadily to 103 participants by the final session on 18 May 2025.</p>
-          <div class="flex flex-wrap gap-4 mt-3 text-xs text-on-surface-variant font-medium">
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">location_on</span>Botanical Garden, Lucknow</span>
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">date_range</span>22 Sep 2024 – 18 May 2025</span>
+          <h3 class="event-card-title">Club Season 1</h3>
+          <p class="event-card-desc">First official club session held at Botanical Garden, Lucknow on 22 September 2024 — just 6 runners showed up. Over 15 weekly sessions through the year, the community grew steadily to 103 participants by the final session on 18 May 2025.</p>
+          <div class="event-card-meta">
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">location_on</span>Botanical Garden, Lucknow</span>
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">calendar_today</span>22 Sep 2024 – 18 May 2025</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- First Edition -->
-    <div class="bg-surface-container-lowest rounded-2xl border border-surface-variant p-6 hover:border-primary transition-colors group">
-      <div class="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-        <div class="flex-shrink-0 text-center bg-primary-fixed/30 rounded-xl px-5 py-3 w-fit">
-          <p class="text-xs font-bold uppercase tracking-widest text-primary mb-0.5">Jul 2024</p>
-          <p class="text-2xl font-black text-primary">14</p>
-          <p class="text-xs font-semibold text-on-surface-variant">Sunday</p>
+    <div class="event-card">
+      <img class="event-card-bg" src="https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=1200&q=80" alt="First Edition Background" />
+      <div class="event-card-overlay"></div>
+      <div class="event-card-content">
+        <div class="event-card-date">
+          <p class="event-card-date-label">Jul 2024</p>
+          <p class="event-card-date-num">14</p>
+          <p class="event-card-date-sub">Sunday</p>
         </div>
-        <div class="flex-1">
-          <div class="flex flex-wrap items-center gap-2 mb-2">
-            <span class="bg-surface-container-high text-on-surface text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Completed</span>
-            <span class="text-xs text-on-surface-variant font-medium">5K · Two laps of 2.5km</span>
+        <div class="event-card-body">
+          <div class="event-card-pills">
+            <span class="event-card-pill">Completed</span>
+            <span class="event-card-pill-note">5K · Two laps of 2.5km</span>
           </div>
-          <h3 class="font-title-md text-on-surface text-lg font-bold mb-1">First Edition — Elite Marathon '24</h3>
-          <p class="text-on-surface-variant text-sm leading-relaxed">The run that started it all. Held at Marine Drive, Lucknow on 14 July 2024. A 5K designed to "turn miles into memories" — with mini water stations and checkpoints across the course. Every runner received an official T-shirt, custom medal, and refreshment box. Cash prizes for the top 3 finishers. Supported by Decathlon Vibhuti Khand, Daylite, and Bonn.</p>
-          <div class="flex flex-wrap gap-4 mt-3 text-xs text-on-surface-variant font-medium">
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">location_on</span>Marine Drive, Lucknow</span>
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">emoji_events</span>₹5000 · ₹3000 · ₹1000</span>
-            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-sm">handshake</span>Decathlon · Daylite · Bonn</span>
+          <h3 class="event-card-title">First Edition — Elite Marathon '24</h3>
+          <p class="event-card-desc">The run that started it all. Held at Marine Drive, Lucknow on 14 July 2024. A 5K designed to "turn miles into memories" — with mini water stations and checkpoints across the course. Every runner received an official T-shirt, custom medal, and refreshment box. Cash prizes for the top 3 finishers. Supported by Decathlon Vibhuti Khand, Daylite, and Bonn.</p>
+          <div class="event-card-meta">
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">location_on</span>Marine Drive, Lucknow</span>
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">emoji_events</span>₹5000 · ₹3000 · ₹1000</span>
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">handshake</span>Decathlon · Daylite · Bonn</span>
           </div>
         </div>
       </div>
@@ -289,71 +576,202 @@
 </footer>
 <!-- FAB (Contextual for Home/Events) -->
 <div class="fixed bottom-8 right-8 z-50">
-<button class="bg-primary text-on-primary w-14 h-14 rounded-2xl shadow-2xl flex items-center justify-center active:scale-95 transition-all hover:rotate-12">
+<button id="quick-join-fab" class="bg-primary text-on-primary w-14 h-14 rounded-2xl shadow-2xl flex items-center justify-center active:scale-95 transition-all hover:rotate-12">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
 </button>
 </div>
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script>
-// ── Filter buttons ──────────────────────────────────────────────────
-const filterBtns = document.querySelectorAll('button');
-let currentFilter = 'all';
-
-filterBtns.forEach(btn => {
-  const text = btn.textContent.trim();
-  if (['All Days', 'Weekend', 'Weekdays'].includes(text)) {
-    btn.addEventListener('click', () => {
-      currentFilter = text === 'All Days' ? 'all' : text === 'Weekend' ? 'weekend' : 'weekday';
-      filterBtns.forEach(b => {
-        if (['All Days', 'Weekend', 'Weekdays'].includes(b.textContent.trim())) {
-          b.classList.toggle('bg-primary', b === btn);
-          b.classList.toggle('text-on-primary', b === btn);
-          b.classList.toggle('bg-surface', b !== btn);
-          b.classList.toggle('text-on-surface', b !== btn);
-        }
-      });
-    });
-  }
-});
-
-// ── RSVP buttons ────────────────────────────────────────────────────
-// Wire all RSVP / "Count Me In" / "Join Session" buttons
-document.querySelectorAll('button').forEach(btn => {
-  const text = btn.textContent.trim();
-  if (['Join', 'Count Me In', 'Join Session'].includes(text)) {
-    // Find nearest event card to get event context
-    btn.addEventListener('click', () => {
-      const card = btn.closest('[class*="card"], section, article, div[class*="bg-surface"]') || btn.parentElement;
-      const titleEl = card ? card.querySelector('h2,h3,h4') : null;
-      const title = titleEl ? titleEl.textContent.trim() : 'this run';
-      showRsvpModal(null, title); // eventId resolved server-side by next event fallback
-    });
-  }
-
-  // "Join Next Run" nav button goes to events page
-  if (text === 'Join Next Run') {
-    btn.addEventListener('click', () => showRsvpModal());
-  }
-});
-
-// Check URL for highlighted event
-const params = new URLSearchParams(window.location.search);
-const highlightId = params.get('highlight');
-if (highlightId) {
-  // Scroll to and pulse the first RSVP button after a short delay
-  setTimeout(() => {
-    const rsvpBtns = [...document.querySelectorAll('button')].filter(b =>
-      ['Join', 'Count Me In', 'Join Session'].includes(b.textContent.trim())
-    );
-    if (rsvpBtns[0]) {
-      rsvpBtns[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      rsvpBtns[0].style.animation = 'pulse 1s 3';
-    }
-  }, 400);
+// ── Small helpers ───────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
 }
 
-// ── RSVP Modal ───────────────────────────────────────────────────────
+function formatDateParts(dateStr) {
+  const d = new Date(dateStr);
+  return {
+    month: d.toLocaleDateString('en-IN', { month: 'short' }),
+    day: d.getDate(),
+    weekday: d.toLocaleDateString('en-IN', { weekday: 'short' }),
+    full: d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+  };
+}
+
+// ── State ───────────────────────────────────────────────────────────
+let nextRunEvent = null;      // full details of the soonest upcoming run (with live spot count)
+let allEventsById = {};       // cache so RSVP buttons can look up titles without re-fetching
+let currentFilter = 'all';
+
+// ── Next Run card ───────────────────────────────────────────────────
+async function loadNextRun() {
+  const card = document.getElementById('next-run-card');
+  try {
+    const { event: brief } = await apiGet('/api/events/next');
+    // Fetch full details so we get an accurate, live registrationCount
+    const { event } = await apiGet(`/api/events/${brief.id}`);
+    nextRunEvent = event;
+    allEventsById[event.id] = event;
+    renderNextRunCard(event);
+  } catch (e) {
+    nextRunEvent = null;
+    renderNoNextRun();
+  }
+}
+
+function renderNextRunCard(event) {
+  const card = document.getElementById('next-run-card');
+  const date = formatDateParts(event.date);
+
+  let spotsText, full = false;
+  if (event.maxParticipants) {
+    const remaining = event.maxParticipants - (event.registrationCount || 0);
+    full = remaining <= 0;
+    spotsText = full ? 'This run is full' : `${remaining} spot${remaining === 1 ? '' : 's'} left`;
+  } else {
+    const count = event.registrationCount || 0;
+    spotsText = `${count} runner${count === 1 ? '' : 's'} registered`;
+  }
+
+  card.innerHTML = `
+    <div class="p-6 md:p-10 flex flex-col md:flex-row md:items-center gap-6 md:gap-8">
+      <div class="flex-shrink-0 text-center bg-primary-fixed/50 rounded-2xl px-6 py-4 w-fit mx-auto md:mx-0">
+        <p class="text-xs font-bold uppercase tracking-wider text-primary mb-1">${date.month}</p>
+        <p class="text-3xl font-extrabold text-primary leading-none">${date.day}</p>
+        <p class="text-xs font-semibold text-on-surface-variant mt-1">${date.weekday}</p>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+          <span class="bg-secondary-container/40 text-primary text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide">${escapeHtml(event.difficulty)}</span>
+          ${event.distanceKm ? `<span class="text-xs text-on-surface-variant font-semibold">${event.distanceKm} km</span>` : ''}
+        </div>
+        <h3 class="text-xl md:text-2xl font-bold text-on-surface mb-2">${escapeHtml(event.title)}</h3>
+        ${event.description ? `<p class="text-on-surface-variant text-sm mb-4">${escapeHtml(event.description)}</p>` : ''}
+        <div class="flex flex-wrap gap-4 text-sm text-on-surface-variant">
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-base">schedule</span>${escapeHtml(event.time)}</span>
+          <span class="flex items-center gap-1"><span class="material-symbols-outlined text-primary text-base">location_on</span>${escapeHtml(event.location)}</span>
+        </div>
+      </div>
+      <div class="flex-shrink-0 text-center md:text-right md:w-48">
+        <p class="text-sm font-semibold text-on-surface-variant mb-3">${spotsText}</p>
+        <button
+          class="js-rsvp-btn bg-primary text-on-primary px-8 py-3 rounded-full font-semibold hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
+          data-event-id="${event.id}" ${full ? 'disabled' : ''}>
+          ${full ? 'Run Full' : 'Count Me In'}
+        </button>
+        <a href="/event-details?id=${event.id}" class="block mt-2 text-xs text-primary hover:underline">View full details</a>
+      </div>
+    </div>
+  `;
+}
+
+function renderNoNextRun() {
+  const card = document.getElementById('next-run-card');
+  card.innerHTML = `
+    <div class="p-10 text-center text-on-surface-variant">
+      <span class="material-symbols-outlined text-4xl mb-3 block text-outline">event_busy</span>
+      <p class="font-label-md">No upcoming run scheduled right now — check back soon!</p>
+    </div>
+  `;
+}
+
+// ── Upcoming Runs list ──────────────────────────────────────────────
+async function loadUpcomingRuns(filter = 'all') {
+  currentFilter = filter;
+  const listEl = document.getElementById('upcoming-runs-list');
+  const emptyEl = document.getElementById('upcoming-runs-empty');
+
+  listEl.innerHTML = '<p class="text-center text-sm text-on-surface-variant py-10">Loading upcoming runs…</p>';
+  emptyEl.classList.add('hidden');
+
+  try {
+    const { events } = await apiGet(`/api/events?filter=${filter}&limit=20`);
+    events.forEach(e => { allEventsById[e.id] = e; });
+
+    // Don't repeat the run already shown in the "Next Run" hero card above
+    const rest = nextRunEvent ? events.filter(e => e.id !== nextRunEvent.id) : events;
+
+    if (!rest.length) {
+      listEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+
+    listEl.innerHTML = rest.map(renderUpcomingCard).join('');
+  } catch (e) {
+    listEl.innerHTML = `<p class="text-center text-sm py-10" style="color:#ba1a1a;">Couldn't load runs right now. Try refreshing.</p>`;
+    console.error('Failed to load upcoming runs:', e.message);
+  }
+}
+
+function renderUpcomingCard(event) {
+  const date = formatDateParts(event.date);
+  return `
+    <div class="event-card">
+      <div class="event-card-overlay"></div>
+      <div class="event-card-content">
+        <div class="event-card-date">
+          <p class="event-card-date-label">${date.month}</p>
+          <p class="event-card-date-num">${date.day}</p>
+          <p class="event-card-date-sub">${date.weekday}</p>
+        </div>
+        <div class="event-card-body">
+          <div class="event-card-pills">
+            <span class="event-card-pill event-card-pill-accent">${escapeHtml(event.difficulty)}</span>
+            ${event.distanceKm ? `<span class="event-card-pill-note">${event.distanceKm} km</span>` : ''}
+          </div>
+          <h3 class="event-card-title">${escapeHtml(event.title)}</h3>
+          <p class="event-card-desc">${escapeHtml(event.description || '')}</p>
+          <div class="event-card-meta">
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">schedule</span>${escapeHtml(event.time)}</span>
+            <span class="event-card-meta-item"><span class="material-symbols-outlined">location_on</span>${escapeHtml(event.location)}</span>
+          </div>
+        </div>
+        <div class="flex-shrink-0 flex md:flex-col items-center gap-3 md:gap-2">
+          <button class="js-rsvp-btn bg-primary text-on-primary px-6 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap" data-event-id="${event.id}">Join Run</button>
+          <a href="/event-details?id=${event.id}" class="text-xs text-primary hover:underline whitespace-nowrap">Details</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Filter buttons (All Days / Weekend / Weekdays) ─────────────────
+document.querySelectorAll('.run-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.run-filter-btn').forEach(b => {
+      const active = b === btn;
+      b.classList.toggle('bg-primary', active);
+      b.classList.toggle('text-on-primary', active);
+      b.classList.toggle('bg-surface', !active);
+      b.classList.toggle('text-on-surface', !active);
+      b.classList.toggle('border', !active);
+      b.classList.toggle('border-outline-variant', !active);
+    });
+    loadUpcomingRuns(btn.dataset.filter);
+  });
+});
+
+// ── RSVP buttons (event delegation — works for cards rendered after page load) ──
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.js-rsvp-btn');
+  if (!btn || btn.disabled) return;
+  const id = btn.dataset.eventId;
+  const ev = allEventsById[id];
+  showRsvpModal(id, ev ? ev.title : 'this run');
+});
+
+// Quick-join FAB — jumps straight to RSVP for the next run
+document.getElementById('quick-join-fab')?.addEventListener('click', () => {
+  if (nextRunEvent) {
+    showRsvpModal(nextRunEvent.id, nextRunEvent.title);
+  } else {
+    showRsvpModal();
+  }
+});
+
 // ── RSVP Modal ───────────────────────────────────────────────────────
 async function showRsvpModal(eventId, eventTitle) {
   // Must be logged in to register — send to login if not
@@ -363,20 +781,20 @@ async function showRsvpModal(eventId, eventTitle) {
     return;
   }
 
-  // Get next event if no ID provided
+  // Get next event if no ID provided (e.g. FAB used before anything finished loading)
   if (!eventId) {
     try {
-      const res = await fetch('/api/events/next');
-      if (res.ok) {
-        const { data } = await res.json();
-        eventId = data.event.id;
-        eventTitle = eventTitle || data.event.title;
-      }
-    } catch(e) {}
+      const { event } = await apiGet('/api/events/next');
+      eventId = event.id;
+      eventTitle = eventTitle || event.title;
+    } catch (e) {
+      alert("There's no upcoming run right now — check back soon!");
+      return;
+    }
   }
 
   const existing = document.getElementById('erc-rsvp-modal');
-  if (existing) { existing.style.display='flex'; return; }
+  if (existing) { existing.remove(); }
 
   const modal = document.createElement('div');
   modal.id = 'erc-rsvp-modal';
@@ -387,8 +805,8 @@ async function showRsvpModal(eventId, eventTitle) {
       <button onclick="document.getElementById('erc-rsvp-modal').style.display='none'"
         style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
       <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:4px;">Join This Run</h2>
-      <p id="erc-rsvp-event-name" style="color:#2B4A8C;font-weight:600;margin-bottom:24px;">${eventTitle || 'Upcoming Run'}</p>
-      <p style="color:#666;font-size:0.9rem;margin-bottom:20px;">You're signed in as <strong>${user.name}</strong> (${user.email}). Confirm below to reserve your spot.</p>
+      <p id="erc-rsvp-event-name" style="color:#2B4A8C;font-weight:600;margin-bottom:24px;">${escapeHtml(eventTitle || 'Upcoming Run')}</p>
+      <p style="color:#666;font-size:0.9rem;margin-bottom:20px;">You're signed in as <strong>${escapeHtml(user.name)}</strong> (${escapeHtml(user.email)}). Confirm below to reserve your spot.</p>
       <button id="erc-rsvp-submit" onclick="submitRsvp()"
         style="width:100%;background:#2B4A8C;color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:600;cursor:pointer;">
         Count Me In
@@ -405,7 +823,7 @@ async function submitRsvp() {
   const msg = document.getElementById('erc-rsvp-msg');
   const btn = document.getElementById('erc-rsvp-submit');
 
-  if (!eventId) { msg.textContent = 'Could not find event. Please refresh.'; msg.style.color='red'; return; }
+  if (!eventId) { msg.textContent = 'Could not find event. Please refresh.'; msg.style.color = 'red'; return; }
 
   btn.textContent = 'Submitting...'; btn.disabled = true;
 
@@ -414,11 +832,34 @@ async function submitRsvp() {
     msg.textContent = "You're confirmed! Check your email.";
     msg.style.color = '#2B4A8C';
     btn.textContent = "✓ You're in!";
-  } catch(e) {
+    // Refresh spot counts in the background so the page reflects the new registration
+    loadNextRun();
+    loadUpcomingRuns(currentFilter);
+  } catch (e) {
     msg.textContent = e.message;
     msg.style.color = 'red';
     btn.textContent = 'Count Me In'; btn.disabled = false;
   }
 }
+
+// ── Init ─────────────────────────────────────────────────────────────
+(async function initEventsPage() {
+  await loadNextRun();
+  await loadUpcomingRuns('all');
+
+  // If arriving from a "Join Next Run" link with ?highlight=<eventId>, scroll to it and pulse it
+  const params = new URLSearchParams(window.location.search);
+  const highlightId = params.get('highlight');
+  if (highlightId) {
+    setTimeout(() => {
+      const btn = document.querySelector(`.js-rsvp-btn[data-event-id="${highlightId}"]`);
+      const target = btn ? btn.closest('.event-card, #next-run-card > div, #next-run-card') : null;
+      if (btn) {
+        btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        btn.style.animation = 'pulse 1.2s 3';
+      }
+    }, 300);
+  }
+})();
 </script>
 </body></html>
